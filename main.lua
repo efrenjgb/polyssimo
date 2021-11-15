@@ -8,6 +8,27 @@ piece1 = {
     y = 1
 }
 
+pieces = {
+    {
+        m = {
+            {1,1,1},
+            {1,0,1},
+            {0,0,0}
+        },
+        x = 1,
+        y = 1
+    },
+    {
+        m = {
+            {0,0,0},
+            {0,1,1},
+            {1,1,0}
+        },
+        x = 1,
+        y = 1
+    }
+}
+
 board = {
     {0,0,0,0,0,0,0},
     {0,0,0,0,0,0,0},
@@ -18,17 +39,26 @@ board = {
     {0,0,0,0,0,0,0}
 }
 
+selectedPiece = 1
+
 function love.load()
 
 end
 
 function love.keypressed(key)
     if key == 'x' then
-        piece1.m = rotate90ccw(piece1.m)
+        pieces[selectedPiece].m = rotate90ccw(pieces[selectedPiece].m)
     elseif key == 'a' then
-        piece1.x = piece1.x - 1
+        pieces[selectedPiece].x = pieces[selectedPiece].x - 1
+    elseif key == 'd' then
+        pieces[selectedPiece].x = pieces[selectedPiece].x + 1
     elseif key == 's' then
-        piece1.x = piece1.x + 1
+        selectedPiece = selectedPiece + 1
+        if selectedPiece > 2 then
+            selectedPiece = 1
+        end
+    elseif key == 'w' then
+        place(selectedPiece)
     end
 end
 
@@ -85,11 +115,20 @@ function rotate90ccw(m)
 end
 
 
-function place(p, x, y)
+function place(index)
+    canPlace = true
     for i=1,3 do
         for j=1,3 do
-            if p[i][j]==1 then
+            if pieces[index].m[i][j] > 1 and board[i][j] ~= 0 then
+                canPlace = false
+            end
+        end
+    end
 
+    for i=1,3 do
+        for j=1,3 do            
+            if pieces[index].m[i][j] > 0 then
+                board[i][j] = pieces[index].m[i][j]
             end
         end
     end
@@ -102,25 +141,27 @@ function love.draw()
         for j=1,7 do
             if board[i][j] == 0 then
                 love.graphics.setColor(1,1,1)
-                love.graphics.rectangle(
-                    'fill',
-                    ((i - 1) * 65)+20,
-                    ((j - 1) * 65)+20,
-                    60,
-                    60
-                )
+            elseif board[i][j] == 1 then
+                love.graphics.setColor(1,0,0)
             end
+            love.graphics.rectangle(
+                'fill',
+                ((i - 1) * 65)+20,
+                ((j - 1) * 65)+20,
+                60,
+                60
+            )
         end
     end
 
     for i=1,3 do
         for j=1,3 do
-            if piece1.m[i][j] == 1 then
+            if pieces[selectedPiece].m[i][j] == 1 then
                 love.graphics.setColor(.3,.3,.3)
                 love.graphics.rectangle(
                     'fill',
-                    (((i - 1) ) * 65)+20+((piece1.x-1)*65),
-                    (((j - 1) ) * 65)+20+((piece1.y-1)*65),
+                    (((i - 1) ) * 65)+20+((pieces[selectedPiece].x-1)*65),
+                    (((j - 1) ) * 65)+20+((pieces[selectedPiece].y-1)*65),
                     60,
                     60
                 )   
